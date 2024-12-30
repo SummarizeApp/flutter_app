@@ -1,0 +1,22 @@
+{
+    "Dictionary": "Sözlük",
+    "signIn": "Giriş yap",
+    "signUp": "Kayıt ol",
+    "welcome": "Hoş geldin ...",
+    "createAcount": "Hesap oluştur",
+    "email":"E-mail",
+    "password":"Şifre",
+    "forgetPassword": "Şifremi unuttum",
+    "userName":"Kullanı adı",
+    "contactNumber":"İletişim numarası",
+    "or":"veya",
+    "chooseLawText":"Özetlemek istediğiniz hukuksal metni PDF formatında seçiniz...",
+    "selectedSummary": "Hukuksal metni özetle",
+    "noFileSelected": "Lütfen yüklemek istediğin PDF'i seç",
+    "ok":"Tamam",
+    "pickPdfFies":"PDF dosyanı seç",
+    "homeScreen": "Ana sayfa",
+    "home":"hukuksal özet",
+    "summary":"Özetlenen",
+    "profile":"Profil"
+}
