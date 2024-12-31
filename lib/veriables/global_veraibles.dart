@@ -37,16 +37,11 @@ String formatTime(DateTime? date, String langCode) {
   return DateFormat.Hm(langCode).format(date); // Saat ve dakika (örneğin: "10:30")
 }
 
-Future getValueFromStore(String key, String type) async {
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  if (type == 'bool') {
-    return prefs.getBool(key);
-  } else if (type == 'int') {
-    return prefs.getInt(key);
-  } else {
-    return prefs.getString(key);
-  }
+Future<String?> getValueFromStore(String key, String type) async {
+  final prefs = await SharedPreferences.getInstance();
+  return prefs.getString(key); // Key’in doğru olup olmadığını kontrol edin
 }
+
 
 
 

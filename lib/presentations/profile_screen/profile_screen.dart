@@ -1,8 +1,8 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
+import 'package:literate_app/services/profile_service/profile_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -14,10 +14,32 @@ class ProfileScreen extends StatefulWidget {
 
 class _ProfileScreenState extends State<ProfileScreen> {
   File? _profileImage;
+  String? _userName;
+  String? _email;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchProfileData();
+  }
+
+  /// Profil verilerini servisten al ve state'e kaydet
+  Future<void> _fetchProfileData() async {
+    try {
+      final profileService = ProfileService();
+      final profileData = await profileService.fetchProfile();
+
+      setState(() {
+        // _userName = profileData['name'] ?? 'Unknown'; // Backend'den gelen isim
+        _email = profileData['email'] ?? 'No Email'; // Backend'den gelen e-posta
+      });
+    } catch (e) {
+      _showSnackBar("Profil bilgileri alınamadı: $e");
+    }
+  }
 
   /// Kullanıcıdan galeriye erişim izni isteyip, resim seçimini yöneten metod.
   Future<void> _pickImage() async {
-    // Galeriye erişim izni kontrolü
     final permission = Platform.isAndroid
         ? Permission.manageExternalStorage
         : Permission.photos;
@@ -30,7 +52,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       }
     }
 
-    // İzin verildiyse, ImagePicker ile galeri aç
     if (await permission.isGranted) {
       final picker = ImagePicker();
       try {
@@ -88,8 +109,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarDefault(
-        title:  ("Profile"),
-     
+        title: ("Profile"),
       ),
       body: SingleChildScrollView(
         child: Column(
@@ -135,14 +155,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ],
             ),
             const SizedBox(height: 50),
-            const Text(
-              "John Doe",
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            Text(
+              _userName ?? "Loading...", // Servisten alınan kullanıcı adı
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
             const SizedBox(height: 4),
-            const Text(
-              "johndoe@example.com",
-              style: TextStyle(fontSize: 16, color: Colors.grey),
+            Text(
+              _email ?? "Loading...", // Servisten alınan e-posta
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
             Padding(

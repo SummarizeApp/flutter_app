@@ -1,12 +1,13 @@
-
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/presentations/home_screen/components/custom_pdf_picker.dart';
 import 'package:literate_app/presentations/home_screen/components/custom_pdf_viewer_widget.dart';
 import 'package:literate_app/presentations/home_screen/components/utils/custom_summary_button.dart';
+import 'package:literate_app/services/summary_service/pdf_uplaoud_service.dart';
 import 'dart:io';
 import 'package:lottie/lottie.dart';
+import 'package:mime/mime.dart';  // mime paketini dahil ettik
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({Key? key}) : super(key: key);
@@ -18,15 +19,29 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   List<File> files = [];
   String? selectedFilePath;
+  bool isLoading = false; // Yükleme durumunu takip etmek için
 
   void handleFilePicked(List<File> pickedFiles) {
-    if (pickedFiles.isNotEmpty) {
+  if (pickedFiles.isNotEmpty) {
+    final pickedFile = pickedFiles.last;
+    final mimeType = lookupMimeType(pickedFile.path); // Dosyanın mime türünü alıyoruz
+    final fileExtension = pickedFile.path.split('.').last.toLowerCase(); // Dosya uzantısını alıyoruz
+
+    // Eğer dosyanın türü pdf ise
+    if (mimeType == 'application/pdf' || fileExtension == 'pdf') {
       setState(() {
-        files.add(pickedFiles.last);
-        selectedFilePath = pickedFiles.last.path;
+        files.add(pickedFile);
+        selectedFilePath = pickedFile.path;
       });
+    } else {
+      // Eğer dosya pdf değilse, hata mesajı gösteriyoruz
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Lütfen sadece PDF dosyaları yükleyin")),
+      );
     }
   }
+}
+
 
   void removeLastFile() {
     setState(() {
@@ -36,6 +51,49 @@ class _HomeScreenState extends State<HomeScreen> {
       }
     });
   }
+
+  Future<void> summarizeFiles() async {
+  if (files.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text("Lütfen bir dosya seçin")),
+    );
+    return;
+  }
+
+  setState(() {
+    isLoading = true;
+  });
+
+  try {
+    for (var file in files) {
+      var response = await FileUploadService().uploadFile(
+        title: "Example Title", // Sabit başlık
+        description: "Example Description", // Sabit açıklama
+        file: file,
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Dosya başarıyla yüklendi!")),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Dosya yükleme başarısız: ${response.body}")),
+        );
+      }
+      print(response.body);
+    }
+  } catch (e) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text("Hata: $e")),
+    );
+  } finally {
+    setState(() {
+      isLoading = false;
+    });
+  }
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +109,6 @@ class _HomeScreenState extends State<HomeScreen> {
             children: [
               _buildTitle(),
               const SizedBox(height: 40),
-              
               PdfPickerWidget(
                 onFilesPicked: handleFilePicked,
               ),
@@ -68,10 +125,9 @@ class _HomeScreenState extends State<HomeScreen> {
               if (files.isNotEmpty)
                 CustomSummaryButton(
                   files: files,
-                  onPressed: () {
-                    // Özelleştirilmiş işlem
-                  },
+                  onPressed: summarizeFiles, // Özetleme işlemini başlat
                 ),
+              if (isLoading) const CircularProgressIndicator(), // Yükleme göstergesi
             ],
           ),
         ),
@@ -113,10 +169,10 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-   Widget _buildLottieAnimation() {
+  Widget _buildLottieAnimation() {
     return Center(
       child: Lottie.asset(
-        'assets/lottie/law2.json', // Lottie animasyon dosya yolu
+        'assets/lottie/law2.json',
         width: 300,
         height: 300,
         repeat: true,

@@ -12,8 +12,17 @@ class LoginForm extends StatelessWidget {
 
   LoginForm({super.key});
 
+
   // Login işlemi yapan fonksiyon
   void handleLogin(BuildContext context, String email, String password) async {
+    String? accessToken = await AuthServiceLogin.getAccessToken();
+
+// Eğer token varsa, onu kullanın
+if (accessToken != null) {
+  print('Access Token *********************************: $accessToken');
+} else {
+  print('Access token bulunamadı.');
+}
     // E-posta ve şifreyi kontrol et
     print("Email: $email");
     print("Password: $password");
