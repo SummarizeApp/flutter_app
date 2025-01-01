@@ -31,7 +31,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
       setState(() {
         // _userName = profileData['name'] ?? 'Unknown'; // Backend'den gelen isim
-        _email = profileData['email'] ?? 'No Email'; // Backend'den gelen e-posta
+        _email =
+            profileData['email'] ?? 'No Email'; // Backend'den gelen e-posta
       });
     } catch (e) {
       _showSnackBar("Profil bilgileri alınamadı: $e");
@@ -120,10 +121,17 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Container(
                   height: 200,
                   decoration: const BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.deepPurple, Colors.deepPurpleAccent],
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
+                    // color: Colors.red// Gradient'i kaldırdık ve renk verdik
+                  ),
+                  child: Positioned(
+                    top: 50,
+                    child: InkWell(
+                      onTap: _pickImage,
+                      child: CircleAvatar(
+                        radius: 50,
+                        backgroundColor: Colors.blue
+                            .shade50, // CircleAvatar rengini buradan ayarlıyoruz
+                      ),
                     ),
                   ),
                 ),
@@ -138,7 +146,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                         radius: 45,
                         backgroundImage: _profileImage != null
                             ? FileImage(_profileImage!)
-                            : const AssetImage('assets/images/default_profile.jpg')
+                            : const AssetImage(
+                                    'assets/images/default_profile.jpg')
                                 as ImageProvider,
                         child: const Align(
                           alignment: Alignment.bottomRight,
@@ -207,7 +216,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(width: 16),
             Text(
               title,
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w500, color: color),
+              style: TextStyle(
+                  fontSize: 16, fontWeight: FontWeight.w500, color: color),
             ),
           ],
         ),
