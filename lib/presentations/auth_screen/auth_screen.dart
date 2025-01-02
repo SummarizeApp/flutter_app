@@ -5,7 +5,7 @@ import 'package:literate_app/presentations/auth_screen/components/login_form.dar
 import 'package:literate_app/presentations/auth_screen/components/register_form.dart';
 import 'package:literate_app/veriables/global_veraibles.dart';
 import 'package:lottie/lottie.dart';
- // İkonlar için bu paketi kullanıyoruz
+
  
 
 class AuthScreen extends StatefulWidget {

@@ -3,6 +3,7 @@
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:literate_app/models/user_modal.dart';
+import 'package:literate_app/presentations/auth_screen/components/otp_verify_screen.dart';
 import 'package:literate_app/presentations/auth_screen/components/utils/input_custom_widget.dart';
 import 'package:literate_app/services/auth_service/register_service.dart';
 
@@ -44,40 +45,80 @@ class SignUpForm extends StatelessWidget {
           icon: Icons.phone,
         ),
         const SizedBox(height: 10),
-        ElevatedButton(
-          onPressed: () async {
-            // Kullanıcıdan alınan bilgilerle UserModel oluştur
-            final user = UserModel(
-              id: '', // ID backend tarafından oluşturulacağı için boş bırakıyoruz
-              username: userNameController.text.trim(),
-              email: emailController.text.trim(),
-              password: passwordController.text.trim(),
-              connactNumber: contactNumberController.text.trim(),
-            );
+        // ElevatedButton(
+        //   onPressed: () async {
+        //     // Kullanıcıdan alınan bilgilerle UserModel oluştur
+        //     final user = UserModel(
+        //       id: '', // ID backend tarafından oluşturulacağı için boş bırakıyoruz
+        //       username: userNameController.text.trim(),
+        //       email: emailController.text.trim(),
+        //       password: passwordController.text.trim(),
+        //       connactNumber: contactNumberController.text.trim(),
+        //     );
 
-            // AuthServiceRegister kullanarak kayıt işlemini gerçekleştir
-            try {
-              await authServiceRegister.sendRegisterRequest(user);
-              // Kayıt başarılı olduğunda mesaj göster
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(tr("signUpSuccess"))),
-              );
-            } catch (e) {
-              // Kayıt sırasında hata olduğunda mesaj göster
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text(tr("signUpFailed"))),
-              );
-            }
-          },
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-            minimumSize: const Size(double.infinity, 50),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(8),
-            ),
-          ),
-          child: Text(tr("signUp")),
+        //     // AuthServiceRegister kullanarak kayıt işlemini gerçekleştir
+        //     try {
+        //       await authServiceRegister.sendRegisterRequest(user);
+        //       // Kayıt başarılı olduğunda mesaj göster
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(content: Text(tr("signUpSuccess"))),
+        //       );
+        //     } catch (e) {
+        //       // Kayıt sırasında hata olduğunda mesaj göster
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(content: Text(tr("signUpFailed"))),
+        //       );
+        //     }
+        //   },
+        //   style: ElevatedButton.styleFrom(
+        //     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+        //     minimumSize: const Size(double.infinity, 50),
+        //     shape: RoundedRectangleBorder(
+        //       borderRadius: BorderRadius.circular(8),
+        //     ),
+        //   ),
+        //   child: Text(tr("signUp")),
+        // ),
+        ElevatedButton(
+  onPressed: () async {
+    final user = UserModel(
+      id: '',
+      username: userNameController.text.trim(),
+      email: emailController.text.trim(),
+      password: passwordController.text.trim(),
+      connactNumber: contactNumberController.text.trim(),
+    );
+
+    try {
+      await authServiceRegister.sendRegisterRequest(user);
+
+      // Kayıt başarılı olduğunda OTP doğrulama ekranına yönlendir
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => OtpVerificationScreen(),
         ),
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr("signUpSuccess"))),
+      );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(tr("signUpFailed"))),
+      );
+    }
+  },
+  style: ElevatedButton.styleFrom(
+    backgroundColor: Theme.of(context).colorScheme.primaryContainer,
+    minimumSize: const Size(double.infinity, 50),
+    shape: RoundedRectangleBorder(
+      borderRadius: BorderRadius.circular(8),
+    ),
+  ),
+  child: Text(tr("signUp")),
+),
+
       ],
     );
   }

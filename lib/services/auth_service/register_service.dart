@@ -1,8 +1,7 @@
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:literate_app/models/user_modal.dart';
-// UserModel'in bulunduğu dosya yolu
 
 class AuthServiceRegister {
   // Kayıt isteği gönderen fonksiyon
@@ -23,47 +22,26 @@ class AuthServiceRegister {
         body: body,
       );
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         // Başarılı istek
-        print('Kayıt başarılı: ${response.body}');
+        final responseData = jsonDecode(response.body);
+        final userId = responseData['data']['userId'];
+
+        // userId'yi SharedPreferences'a kaydet
+        final prefs = await SharedPreferences.getInstance();
+        await prefs.setString('userId', userId);
+
+        print('Kayıt başarılı **********************************: $responseData');
+         final savedUserId = prefs.getString('userId');
+        print('Kaydedilen userId ********************************: $savedUserId');
+       
       } else {
-        // Hata durumu
+        
         print('Hata: ${response.statusCode}, Mesaj: ${response.body}');
       }
     } catch (e) {
       // İstek sırasında bir hata oluştu
       print('Hata oluştu: $e');
-    }
-  }
-
-  // Giriş işlemi sonucu boolean döndüren fonksiyon
-  Future<bool> Register(String email, String password) async {
-    final url = Uri.parse('http://192.168.1.30:3000/api/auth/register');
-    final headers = {'Content-Type': 'application/json'};
-    final body = jsonEncode({
-      'email': email,
-      'password': password,
-    });
-
-    try {
-      final response = await http.post(
-        url,
-        headers: headers,
-        body: body,
-      );
-
-      if (response.statusCode == 200) {
-        // Başarılı istek
-        print('Giriş başarılı: ${response.body}');
-        return true; // Başarı durumunda true döner
-      } else {
-        // Hata durumu
-        print('Hata: ${response.statusCode}, Mesaj: ${response.body}');
-        return false; // Başarısız giriş
-      }
-    } catch (e) {
-      print('Hata oluştu: $e');
-      return false; // Hata durumunda da false döner
     }
   }
 }

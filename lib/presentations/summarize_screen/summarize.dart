@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
-import 'package:literate_app/presentations/dictionary_screen/components/case_detail_screen.dart';
+import 'package:literate_app/presentations/summarize_screen/components/case_detail_screen.dart';
 import 'package:literate_app/services/summary_service/summaryy_service.dart';
 
-class DictionaryScreen extends StatefulWidget {
-  const DictionaryScreen({super.key});
+class SummarizeScreen extends StatefulWidget {
+  const SummarizeScreen({super.key});
 
   @override
-  State<DictionaryScreen> createState() => _DictionaryScreenState();
+  State<SummarizeScreen> createState() => _SummarizeScreenState();
 }
 
-class _DictionaryScreenState extends State<DictionaryScreen> {
+class _SummarizeScreenState extends State<SummarizeScreen> {
   final CaseService _caseService = CaseService();
   late Future<List<dynamic>> _cases;
 

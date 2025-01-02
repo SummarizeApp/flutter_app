@@ -1,9 +1,9 @@
 
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
-import 'package:literate_app/presentations/dictionary_screen/dictionary.dart';
 import 'package:literate_app/presentations/home_screen/home_screen.dart';
 import 'package:literate_app/presentations/profile_screen/profile_screen.dart';
+import 'package:literate_app/presentations/summarize_screen/summarize.dart';
 
 class BottomNavigator extends StatefulWidget {
   const BottomNavigator({super.key});
@@ -18,7 +18,7 @@ class _BottomNavigator extends State<BottomNavigator> {
   // Sayfaların listesi
   final List<Widget> _pages = [
     const HomeScreen(),
-    const DictionaryScreen(),
+    const SummarizeScreen(),
     const ProfileScreen(),
   ];
 

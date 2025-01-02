@@ -1,11 +1,11 @@
-// import 'package:dictionary_app/global_components/bottom_navigator.dart';
+
 
 import 'package:go_router/go_router.dart';
 import 'package:literate_app/global_components/bottom_navigator.dart';
 import 'package:literate_app/presentations/auth_screen/auth_screen.dart';
-import 'package:literate_app/presentations/dictionary_screen/dictionary.dart';
 import 'package:literate_app/presentations/home_screen/home_screen.dart';
 import 'package:literate_app/presentations/profile_screen/profile_screen.dart';
+import 'package:literate_app/presentations/summarize_screen/summarize.dart';
 
 
 final GoRouter goRouter = GoRouter(
@@ -29,7 +29,7 @@ final GoRouter goRouter = GoRouter(
     ),
      GoRoute(
       path: '/dictionary',
-      builder: (context, state) => const DictionaryScreen(),
+      builder: (context, state) => const SummarizeScreen(),
     ),
      GoRoute(
       path: '/home',
