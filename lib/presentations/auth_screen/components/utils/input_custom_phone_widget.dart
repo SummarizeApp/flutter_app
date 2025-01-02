@@ -7,6 +7,7 @@ class InputCustomWidgetPhone extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final List<TextInputFormatter>? inputFormatters;
+  final String? Function(String?)? validator;
 
   const InputCustomWidgetPhone({
     super.key,
@@ -15,6 +16,7 @@ class InputCustomWidgetPhone extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.inputFormatters,
+     this.validator,
   });
 
   @override

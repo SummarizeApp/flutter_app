@@ -27,6 +27,13 @@
     "emailAppBar": "E-mailini Doğrula",
     "didintReceive": "Doğrulama kodunu alamadınız mı?",
     "otp": "Doğrulama kodu",
-    "signUpFailed": "Hesap oluşturma başarısız!"
-    
+    "signUpFailed": "Hesap oluşturma başarısız!",
+    "userNameCannotBeEmpty": "Kullanıcı adı boş bırakılamaz",
+    "userNameTooShort": "Kullanıcı adı çok kısa",
+    "emailCannotBeEmpty": "E-posta boş bırakılamaz",
+    "invalidEmail": "Geçersiz e-posta formatı",
+    "passwordCannotBeEmpty": "Şifre boş bırakılamaz",
+    "passwordTooShort": "Şifre çok kısa",
+    "phoneCannotBeEmpty": "Telefon numarası boş bırakılamaz",
+    "phoneTooShort": "Telefon numarası çok kısa"
 }

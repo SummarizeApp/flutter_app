@@ -8,6 +8,7 @@ class InputCustomWidget extends StatelessWidget {
   final IconData icon;
   final bool obscureText;
   final List<TextInputFormatter>? inputFormatters; // Add this parameter
+   final String? Function(String?)? validator;
 
   InputCustomWidget({
      this.text,
@@ -15,6 +16,7 @@ class InputCustomWidget extends StatelessWidget {
     required this.icon,
     this.obscureText = false,
     this.inputFormatters, // Accept inputFormatters as a parameter
+    this.validator
   });
 
   @override
