@@ -16,6 +16,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   File? _profileImage;
   String? _userName;
   String? _email;
+  String? _contactNumber;
 
   @override
   void initState() {
@@ -24,20 +25,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Profil verilerini servisten al ve state'e kaydet
-  Future<void> _fetchProfileData() async {
+ Future<void> _fetchProfileData() async {
     try {
       final profileService = ProfileService();
       final profileData = await profileService.fetchProfile();
 
       setState(() {
-        // _userName = profileData['name'] ?? 'Unknown'; // Backend'den gelen isim
-        _email =
-            profileData['email'] ?? 'No Email'; // Backend'den gelen e-posta
+        _email = profileData['email'] ?? 'No Email'; // E-posta
+        _userName = profileData['username'] ?? 'Hata'; // Kullanıcı adı
+        _contactNumber = profileData['connactNumber'] ?? 'No Number'; // Telefon numarası
       });
     } catch (e) {
       _showSnackBar("Profil bilgileri alınamadı: $e");
     }
   }
+
+
 
   /// Kullanıcıdan galeriye erişim izni isteyip, resim seçimini yöneten metod.
   Future<void> _pickImage() async {
@@ -171,6 +174,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
             const SizedBox(height: 4),
             Text(
               _email ?? "Loading...", // Servisten alınan e-posta
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+             Text(
+              _contactNumber ?? "Loading...", // Servisten alınan e-posta
+              style: const TextStyle(fontSize: 16, color: Colors.grey),
+            ),
+             Text(
+              _userName ?? "Loading...", // Servisten alınan e-posta
               style: const TextStyle(fontSize: 16, color: Colors.grey),
             ),
             const SizedBox(height: 20),
