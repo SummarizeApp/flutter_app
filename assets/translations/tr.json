@@ -25,6 +25,8 @@
     "enterOtp": "Mailine gönderilen doğrulama kodunu giriniz.",
     "resendOtp": "Tekrar Gönder",
     "emailAppBar": "E-mailini Doğrula",
-    "didintReceive": "Doğrulama kodunu alamadınız mı?"
+    "didintReceive": "Doğrulama kodunu alamadınız mı?",
+    "otp": "Doğrulama kodu",
+    "signUpFailed": "Hesap oluşturma başarısız!"
     
 }

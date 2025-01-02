@@ -57,7 +57,7 @@ class AuthScreenState extends State<AuthScreen> {
                       ),
                     ),
                     const SizedBox(height: 20),
-                    isLogin ? LoginForm() : SignUpForm(),
+                    isLogin ? LoginForm() : RegisterForm(),
                     const SizedBox(height: 20),
                    
                     // Beyaz çizgi

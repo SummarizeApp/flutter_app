@@ -1,20 +1,22 @@
 
-// import 'package:dictionary_app/services/auth_service_register.dart';
 import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:literate_app/models/user_modal.dart';
 import 'package:literate_app/presentations/auth_screen/components/otp_verify_screen.dart';
+import 'package:literate_app/presentations/auth_screen/components/utils/input_custom_phone_widget.dart';
 import 'package:literate_app/presentations/auth_screen/components/utils/input_custom_widget.dart';
 import 'package:literate_app/services/auth_service/register_service.dart';
+import 'package:literate_app/utils/phone_number_input_formatter.dart';
+import 'package:literate_app/veriables/global_veraibles.dart';
 
-class SignUpForm extends StatelessWidget {
+class RegisterForm extends StatelessWidget {
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController userNameController = TextEditingController();
   final TextEditingController contactNumberController = TextEditingController();
   final AuthServiceRegister authServiceRegister = AuthServiceRegister();
 
-  SignUpForm({super.key});
+  RegisterForm({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -25,60 +27,28 @@ class SignUpForm extends StatelessWidget {
           controller: userNameController,
           icon: Icons.person,
         ),
-        const SizedBox(height: 20),
+         SizedBox(height: screenHeight * 0.020),
         InputCustomWidget(
           text: tr("email"),
           controller: emailController,
           icon: Icons.email,
         ),
-        const SizedBox(height: 20),
+         SizedBox(height: screenHeight *0.02),
         InputCustomWidget(
           text: tr("password"),
           controller: passwordController,
           icon: Icons.lock,
           obscureText: true,
         ),
-        const SizedBox(height: 20),
-        InputCustomWidget(
-          text: tr("contactNumber"),
-          controller: contactNumberController,
-          icon: Icons.phone,
-        ),
-        const SizedBox(height: 10),
-        // ElevatedButton(
-        //   onPressed: () async {
-        //     // Kullanıcıdan alınan bilgilerle UserModel oluştur
-        //     final user = UserModel(
-        //       id: '', // ID backend tarafından oluşturulacağı için boş bırakıyoruz
-        //       username: userNameController.text.trim(),
-        //       email: emailController.text.trim(),
-        //       password: passwordController.text.trim(),
-        //       connactNumber: contactNumberController.text.trim(),
-        //     );
+         SizedBox(height: screenHeight * 0.02),
+        InputCustomWidgetPhone(
+  hintText: tr("contactNumber"),
+  controller: contactNumberController,
+  icon: Icons.phone,
+  inputFormatters: [PhoneNumberInputFormatter()],
+),
+         SizedBox(height: screenHeight * 0.01),
 
-        //     // AuthServiceRegister kullanarak kayıt işlemini gerçekleştir
-        //     try {
-        //       await authServiceRegister.sendRegisterRequest(user);
-        //       // Kayıt başarılı olduğunda mesaj göster
-        //       ScaffoldMessenger.of(context).showSnackBar(
-        //         SnackBar(content: Text(tr("signUpSuccess"))),
-        //       );
-        //     } catch (e) {
-        //       // Kayıt sırasında hata olduğunda mesaj göster
-        //       ScaffoldMessenger.of(context).showSnackBar(
-        //         SnackBar(content: Text(tr("signUpFailed"))),
-        //       );
-        //     }
-        //   },
-        //   style: ElevatedButton.styleFrom(
-        //     backgroundColor: Theme.of(context).colorScheme.primaryContainer,
-        //     minimumSize: const Size(double.infinity, 50),
-        //     shape: RoundedRectangleBorder(
-        //       borderRadius: BorderRadius.circular(8),
-        //     ),
-        //   ),
-        //   child: Text(tr("signUp")),
-        // ),
         ElevatedButton(
   onPressed: () async {
     final user = UserModel(
@@ -100,9 +70,7 @@ class SignUpForm extends StatelessWidget {
         ),
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(tr("signUpSuccess"))),
-      );
+
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(tr("signUpFailed"))),

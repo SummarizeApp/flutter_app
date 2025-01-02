@@ -1,17 +1,20 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+
 
 class InputCustomWidget extends StatelessWidget {
-  final String text;
+  final String? text;
+  final TextEditingController controller;
   final IconData icon;
   final bool obscureText;
-  final TextEditingController controller;  // controller parametresi eklendi
+  final List<TextInputFormatter>? inputFormatters; // Add this parameter
 
-  const InputCustomWidget({
-    super.key,
-    required this.text,
+  InputCustomWidget({
+     this.text,
+    required this.controller,
     required this.icon,
     this.obscureText = false,
-    required this.controller,  // controller parametresi alındı
+    this.inputFormatters, // Accept inputFormatters as a parameter
   });
 
   @override

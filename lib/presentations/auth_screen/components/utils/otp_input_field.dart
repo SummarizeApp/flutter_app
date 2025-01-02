@@ -1,3 +1,4 @@
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 
 class OtpInputField extends StatelessWidget {
@@ -13,7 +14,7 @@ class OtpInputField extends StatelessWidget {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        labelText: 'OTP Code',
+        labelText: tr('otp'),
         labelStyle: TextStyle(color: Colors.white),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(12),
