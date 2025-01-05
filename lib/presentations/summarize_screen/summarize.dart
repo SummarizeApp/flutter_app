@@ -17,7 +17,7 @@ class _SummarizeScreenState extends State<SummarizeScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchCases(); // Backend bağlantısını başlat
+    _fetchCases(); 
   }
 
   void _fetchCases() {

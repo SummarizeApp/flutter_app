@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/services/profile_service/profile_service.dart';
+import 'package:literate_app/services/summary_service/summaryy_service.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class ProfileScreen extends StatefulWidget {
@@ -18,7 +19,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _userName;
   String? _email;
   String? _contactNumber;
-  List<String>? _cases;
+  List<String>? _title;
   String? _createdAt;
 
   @override
@@ -31,16 +32,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Future<void> _fetchProfileData() async {
     try {
       final profileService = ProfileService();
+      final summarizeService = CaseService();
+
       final profileData = await profileService.fetchProfile();
+      final CaseTitleData = await summarizeService.fetchCases();
 
       if (profileData != null) {
         setState(() {
           _email = profileData['email'] ?? 'No Email';
           _userName = profileData['username'] ?? 'Unknown';
           _contactNumber = profileData['connactNumber'] ?? 'No Number';
-          _cases = profileData['cases'] != null
-              ? List<String>.from(profileData['cases'])
-              : ['No Cases'];
+
+          // 'data' içindeki 'title' bilgilerini toplama
+          final cases = CaseTitleData as List<dynamic>? ?? [];
+
+          _title =
+              cases.map((caseItem) => caseItem['title'] as String).toList();
+
           _createdAt = profileData['createdAt'] != null
               ? DateTime.parse(profileData['createdAt']).toLocal().toString()
               : 'No Date';
@@ -50,20 +58,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
         _showSnackBar('Profil bilgisi alınamadı. Lütfen tekrar deneyin.');
       }
     } catch (e) {
-      print("hataaaa");
-      print(e);
+      print("Hata oluştu: $e");
       _showSnackBar('Hata oluştu: $e');
     }
   }
 
-
-   Future<void> _showLogoutDialog() async {
+  Future<void> _showLogoutDialog() async {
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
           title: const Text("Oturum Kapatma"),
-          content: const Text("Oturumunuzu kapatmak istediğinize emin misiniz?"),
+          content:
+              const Text("Oturumunuzu kapatmak istediğinize emin misiniz?"),
           actions: <Widget>[
             TextButton(
               onPressed: () {
@@ -206,14 +213,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    _buildProfileCard(title: "Kullanıcı Adı:", value: _userName!),
+                    _buildProfileCard(
+                        title: "Kullanıcı Adı:", value: _userName!),
                     _buildProfileCard(title: "Mail:", value: _email!),
-                    _buildProfileCard(title: "İletişim Numarası:", value: _contactNumber!),
-                    _buildProfileCard(title: "Hesap oluşturma tarihi:", value: _createdAt!),
-                    if (_cases != null && _cases!.isNotEmpty)
+                    _buildProfileCard(
+                        title: "İletişim Numarası:", value: _contactNumber!),
+                    _buildProfileCard(
+                        title: "Hesap oluşturma tarihi:", value: _createdAt!),
+                    if (_title != null && _title!.isNotEmpty)
                       _buildProfileCard(
-                        title: "Cases",
-                        value: _cases!.join(", "),
+                        title: "Davalar:",
+                        value: _title!
+                            .asMap() // Listeyi indexler ile birlikte kullanmanızı sağlar.
+                            .entries
+                            .map((entry) =>
+                                "${entry.key + 1}. ${entry.value}") 
+                            .join("\n"), // Satırları birleştirir.
                       ),
                   ],
                 ),
@@ -227,8 +242,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 label: const Text("Logout"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
-                  padding: const EdgeInsets.symmetric(
-                      horizontal: 24, vertical: 12),
+                  padding:
+                      const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                 ),
               ),
             ],
@@ -247,7 +262,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         borderRadius: BorderRadius.circular(8),
       ),
       child: ListTile(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
         title: Text(
           title,
           style: const TextStyle(
@@ -263,4 +279,3 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 }
-

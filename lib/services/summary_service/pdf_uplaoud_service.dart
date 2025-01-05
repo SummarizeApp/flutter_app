@@ -5,7 +5,7 @@ import 'package:mime/mime.dart'; // MIME tipi kontrolü için import
 import 'package:http_parser/http_parser.dart';
 
 class FileUploadService {
-  final String endpoint = "http://192.168.1.45:3000/api/cases";
+  final String endpoint = "http://192.168.8.159:3000/api/cases";
 
   Future<http.Response> uploadFile({
     required String title,

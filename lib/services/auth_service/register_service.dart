@@ -6,7 +6,7 @@ import 'package:literate_app/models/user_modal.dart';
 class AuthServiceRegister {
   // Kayıt isteği gönderen fonksiyon
   Future<void> sendRegisterRequest(UserModel user) async {
-    final url = Uri.parse('http://192.168.1.45:3000/api/auth/register');
+    final url = Uri.parse('http://192.168.8.159:3000/api/auth/register');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'email': user.email,

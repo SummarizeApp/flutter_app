@@ -10,7 +10,7 @@
     }
     print('profile ******* Token: $token');
 
-    final url = Uri.parse('http://192.168.1.45:3000/api/users/profile');
+    final url = Uri.parse('http://192.168.8.159:3000/api/users/profile');
     final headers = {
       'Content-Type': 'application/json',
       'Authorization': 'Bearer $token',

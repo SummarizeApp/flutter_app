@@ -3,7 +3,7 @@ import 'package:http/http.dart' as http;
 import 'package:literate_app/veriables/global_veraibles.dart';
 
 class CaseService {
-  final String _baseUrl = "http://192.168.1.45:3000/api/cases";
+  final String _baseUrl = "http://192.168.8.159:3000/api/cases";
 
   Future<List<dynamic>> fetchCases() async {
   final token = await getValueFromStore('access_token', 'string');
