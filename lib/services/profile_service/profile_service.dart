@@ -1,42 +1,43 @@
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:literate_app/veriables/global_veraibles.dart';
+  import 'dart:convert';
+  import 'package:http/http.dart' as http;
+  import 'package:literate_app/veriables/global_veraibles.dart';
 
-class ProfileService {
-  // Profil bilgilerini getiren fonksiyon
-  Future<Map<String, dynamic>> fetchProfile() async {
-    // Token'ı getValueFromStore ile al
+  class ProfileService {
+  Future<Map<String, dynamic>?> fetchProfile() async {
     final token = await getValueFromStore('access_token', 'string');
     if (token == null) {
       throw Exception('Token bulunamadı. Lütfen giriş yapınız.');
     }
+    print('profile ******* Token: $token');
 
-    final url = Uri.parse('http://192.168.1.30:3000/api/auth/profile');
+    final url = Uri.parse('http://192.168.1.45:3000/api/users/profile');
     final headers = {
       'Content-Type': 'application/json',
-      'Authorization': 'Bearer $token', // Token'ı Authorization başlığında kullanıyoruz
+      'Authorization': 'Bearer $token',
     };
 
     try {
       final response = await http.get(url, headers: headers);
 
       if (response.statusCode == 200) {
-        // Başarılı istek
         final responseBody = jsonDecode(response.body);
-        if (responseBody['status'] == 'success') {
-          // "data" içindeki "user" objesini döndür
-          return responseBody['data']['user']; // Sadece user bilgileri döner
+
+        if (responseBody['status'] == 'success' &&
+            responseBody['data'] != null &&
+            responseBody['data']['user'] != null) {
+          return responseBody['data']['user'];
         } else {
-          throw Exception('Profil bilgileri alınamadı: ${responseBody['msg']}');
+          print('Profil bilgisi alınamadı: ${responseBody['msg']}');
+          return null;
         }
       } else if (response.statusCode == 401) {
-        // Yetkilendirme hatası
         throw Exception('Yetkisiz erişim. Lütfen tekrar giriş yapınız.');
       } else {
         throw Exception('Sunucu hatası: ${response.statusCode}');
       }
     } catch (e) {
-      throw Exception('Profil bilgisi alınırken hata oluştu: $e');
+      print('Profil bilgisi alınırken hata oluştu: $e');
+      return null;
     }
   }
 }

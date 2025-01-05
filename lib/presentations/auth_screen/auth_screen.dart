@@ -43,7 +43,7 @@ class AuthScreenState extends State<AuthScreen> {
                       alignment: Alignment.center,
                       child: Lottie.asset(
                         'assets/lottie/initial_book.json',
-                        height: screenHeight * 0.19, // Yüksekliği biraz küçülttüm
+                        height: screenHeight * 0.19, 
                         repeat: false,
                       ),
                     ),
@@ -58,9 +58,7 @@ class AuthScreenState extends State<AuthScreen> {
                     ),
                     const SizedBox(height: 20),
                     isLogin ? LoginForm() : RegisterForm(),
-                    const SizedBox(height: 20),
-                   
-                    // Beyaz çizgi
+                    const SizedBox(height: 20)
                    
                     
                   ],

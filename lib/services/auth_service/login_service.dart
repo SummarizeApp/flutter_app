@@ -5,7 +5,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 class AuthServiceLogin {
   // Giriş işlemi
   Future<bool> login(String email, String password) async {
-    final url = Uri.parse('http://192.168.1.30:3000/api/auth/login');
+    final url = Uri.parse('http://192.168.1.45:3000/api/auth/login');
     final headers = {'Content-Type': 'application/json'};
     final body = jsonEncode({
       'email': email,

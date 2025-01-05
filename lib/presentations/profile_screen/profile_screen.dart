@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/services/profile_service/profile_service.dart';
@@ -17,6 +18,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String? _userName;
   String? _email;
   String? _contactNumber;
+  List<String>? _cases;
+  String? _createdAt;
 
   @override
   void initState() {
@@ -24,25 +27,64 @@ class _ProfileScreenState extends State<ProfileScreen> {
     _fetchProfileData();
   }
 
-  /// Profil verilerini servisten al ve state'e kaydet
- Future<void> _fetchProfileData() async {
+  /// Fetch profile data from the backend and update the state
+  Future<void> _fetchProfileData() async {
     try {
       final profileService = ProfileService();
       final profileData = await profileService.fetchProfile();
 
-      setState(() {
-        _email = profileData['email'] ?? 'No Email'; // E-posta
-        _userName = profileData['username'] ?? 'Hata'; // Kullanıcı adı
-        _contactNumber = profileData['connactNumber'] ?? 'No Number'; // Telefon numarası
-      });
+      if (profileData != null) {
+        setState(() {
+          _email = profileData['email'] ?? 'No Email';
+          _userName = profileData['username'] ?? 'Unknown';
+          _contactNumber = profileData['connactNumber'] ?? 'No Number';
+          _cases = profileData['cases'] != null
+              ? List<String>.from(profileData['cases'])
+              : ['No Cases'];
+          _createdAt = profileData['createdAt'] != null
+              ? DateTime.parse(profileData['createdAt']).toLocal().toString()
+              : 'No Date';
+        });
+      } else {
+        print('Profil bilgisi alınamadı.');
+        _showSnackBar('Profil bilgisi alınamadı. Lütfen tekrar deneyin.');
+      }
     } catch (e) {
-      _showSnackBar("Profil bilgileri alınamadı: $e");
+      print("hataaaa");
+      print(e);
+      _showSnackBar('Hata oluştu: $e');
     }
   }
 
 
+   Future<void> _showLogoutDialog() async {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text("Oturum Kapatma"),
+          content: const Text("Oturumunuzu kapatmak istediğinize emin misiniz?"),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dialogu kapat
+              },
+              child: const Text("Vazgeç"),
+            ),
+            TextButton(
+              onPressed: () {
+                Navigator.of(context).pop(); // Dialogu kapat
+                context.go('/'); // Ana ekrana yönlendir
+              },
+              child: const Text("Evet"),
+            ),
+          ],
+        );
+      },
+    );
+  }
 
-  /// Kullanıcıdan galeriye erişim izni isteyip, resim seçimini yöneten metod.
+  /// Allow user to pick an image from the gallery
   Future<void> _pickImage() async {
     final permission = Platform.isAndroid
         ? Permission.manageExternalStorage
@@ -67,42 +109,42 @@ class _ProfileScreenState extends State<ProfileScreen> {
           });
         }
       } catch (e) {
-        _showSnackBar("Resim seçme sırasında bir hata oluştu: $e");
+        _showSnackBar("Error selecting image: $e");
       }
     } else {
-      _showSnackBar("Galeri erişimi reddedildi.");
+      _showSnackBar("Gallery access denied.");
     }
   }
 
-  /// İzin verilmediğinde ayarlara yönlendiren bir diyalog gösterir.
+  /// Show dialog directing user to app settings if permission is denied
   void _showSettingsDialog() {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text("Gerekli İzinler"),
+        title: const Text("Permissions Required"),
         content: const Text(
-          "Galeriye erişim için izin vermeniz gerekiyor. Ayarlar sayfasından izin verebilirsiniz.",
+          "Gallery access is required to upload a profile picture. Please enable permissions in settings.",
         ),
         actions: [
           TextButton(
             onPressed: () {
               Navigator.pop(context);
             },
-            child: const Text("Vazgeç"),
+            child: const Text("Cancel"),
           ),
           TextButton(
             onPressed: () {
               Navigator.pop(context);
               openAppSettings();
             },
-            child: const Text("Ayarları Aç"),
+            child: const Text("Open Settings"),
           ),
         ],
       ),
     );
   }
 
-  /// Kullanıcıya Snackbar mesajı gösterir.
+  /// Show a Snackbar with a given message
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
@@ -116,123 +158,109 @@ class _ProfileScreenState extends State<ProfileScreen> {
         title: ("Profile"),
       ),
       body: SingleChildScrollView(
-        child: Column(
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                Container(
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    // color: Colors.red// Gradient'i kaldırdık ve renk verdik
-                  ),
-                  child: Positioned(
-                    top: 50,
-                    child: InkWell(
-                      onTap: _pickImage,
-                      child: CircleAvatar(
-                        radius: 50,
-                        backgroundColor: Colors.blue
-                            .shade50, // CircleAvatar rengini buradan ayarlıyoruz
-                      ),
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            children: [
+              // Profile Image Section
+              Stack(
+                alignment: Alignment.center,
+                children: [
+                  CircleAvatar(
+                    radius: 60,
+                    backgroundColor: Colors.blue.shade50,
+                    child: CircleAvatar(
+                      radius: 55,
+                      backgroundImage: _profileImage != null
+                          ? FileImage(_profileImage!)
+                          : const AssetImage(
+                                  'assets/images/default_profile.jpg')
+                              as ImageProvider,
                     ),
                   ),
-                ),
-                Positioned(
-                  top: 50,
-                  child: InkWell(
-                    onTap: _pickImage,
-                    child: CircleAvatar(
-                      radius: 50,
-                      backgroundColor: Colors.white,
-                      child: CircleAvatar(
-                        radius: 45,
-                        backgroundImage: _profileImage != null
-                            ? FileImage(_profileImage!)
-                            : const AssetImage(
-                                    'assets/images/default_profile.jpg')
-                                as ImageProvider,
-                        child: const Align(
-                          alignment: Alignment.bottomRight,
-                          child: Icon(
-                            Icons.camera_alt,
-                            color: Colors.white,
-                            size: 20,
-                          ),
+                  Positioned(
+                    bottom: 0,
+                    right: 0,
+                    child: InkWell(
+                      onTap: _pickImage,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: Colors.blue,
+                        ),
+                        padding: const EdgeInsets.all(8.0),
+                        child: const Icon(
+                          Icons.camera_alt,
+                          color: Colors.white,
+                          size: 20,
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 50),
-            Text(
-              _userName ?? "Loading...", // Servisten alınan kullanıcı adı
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 4),
-            Text(
-              _email ?? "Loading...", // Servisten alınan e-posta
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-             Text(
-              _contactNumber ?? "Loading...", // Servisten alınan e-posta
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-             Text(
-              _userName ?? "Loading...", // Servisten alınan e-posta
-              style: const TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 20),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  _buildProfileOption(Icons.person, "Edit Profile", () {
-                    // Edit Profile işlemleri
-                  }),
-                  _buildProfileOption(Icons.notifications, "Notifications", () {
-                    // Notifications işlemleri
-                  }),
-                  _buildProfileOption(Icons.settings, "Settings", () {
-                    // Settings işlemleri
-                  }),
-                  _buildProfileOption(Icons.help, "Help & Support", () {
-                    // Help işlemleri
-                  }),
-                  const Divider(),
-                  _buildProfileOption(Icons.logout, "Logout", () {
-                    // Logout işlemleri
-                  }, color: Colors.red),
                 ],
               ),
-            ),
-          ],
+              const SizedBox(height: 24),
+
+              // Profile Information Section with Cards
+              if (_userName != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildProfileCard(title: "Kullanıcı Adı:", value: _userName!),
+                    _buildProfileCard(title: "Mail:", value: _email!),
+                    _buildProfileCard(title: "İletişim Numarası:", value: _contactNumber!),
+                    _buildProfileCard(title: "Hesap oluşturma tarihi:", value: _createdAt!),
+                    if (_cases != null && _cases!.isNotEmpty)
+                      _buildProfileCard(
+                        title: "Cases",
+                        value: _cases!.join(", "),
+                      ),
+                  ],
+                ),
+
+              const SizedBox(height: 24),
+
+              // Logout Button
+              ElevatedButton.icon(
+                onPressed: _showLogoutDialog,
+                icon: const Icon(Icons.logout, color: Colors.white),
+                label: const Text("Logout"),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.red,
+                  padding: const EdgeInsets.symmetric(
+                      horizontal: 24, vertical: 12),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  /// Profil seçenekleri için tek tip widget oluşturan metod.
-  Widget _buildProfileOption(IconData icon, String title, VoidCallback onTap,
-      {Color color = Colors.black}) {
-    return InkWell(
-      onTap: onTap,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 12.0),
-        child: Row(
-          children: [
-            Icon(icon, color: color),
-            const SizedBox(width: 16),
-            Text(
-              title,
-              style: TextStyle(
-                  fontSize: 16, fontWeight: FontWeight.w500, color: color),
-            ),
-          ],
+  /// Custom method to build profile card for each info section
+  Widget _buildProfileCard({required String title, required String value}) {
+    return Card(
+      margin: const EdgeInsets.symmetric(vertical: 8.0),
+      elevation: 3,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 12.0),
+        title: Text(
+          title,
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            fontSize: 16,
+          ),
+        ),
+        subtitle: Text(
+          value,
+          style: const TextStyle(fontSize: 16),
         ),
       ),
     );
   }
 }
+

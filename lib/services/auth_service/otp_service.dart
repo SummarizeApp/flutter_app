@@ -4,7 +4,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthServiceVerifyOtp {
   Future<Map<String, String>?> sendOtpVerificationRequest(String otpCode) async {
-    final url = Uri.parse('http://192.168.1.30:3000/api/auth/verify-otp');
+    final url = Uri.parse('http://192.168.1.45:3000/api/auth/verify-otp');
     final headers = {'Content-Type': 'application/json'};
 
     // SharedPreferences'tan userId'yi al

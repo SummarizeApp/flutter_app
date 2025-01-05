@@ -58,6 +58,10 @@ class _SummarizeScreenState extends State<SummarizeScreen> {
                       ElevatedButton(
                         onPressed: _fetchCases, // Yeniden deneme için
                         child: const Text("Yeniden Dene"),
+                        style: ElevatedButton.styleFrom(
+                          foregroundColor: Colors.white, 
+                          backgroundColor: Theme.of(context).colorScheme.primaryContainer, 
+                        ),
                       ),
                     ],
                   ),
