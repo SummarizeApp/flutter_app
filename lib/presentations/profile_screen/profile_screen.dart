@@ -1,11 +1,11 @@
 import 'dart:io';
+import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/services/profile_service/profile_service.dart';
 import 'package:literate_app/services/summary_service/summaryy_service.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -93,62 +93,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
   /// Allow user to pick an image from the gallery
   Future<void> _pickImage() async {
-    final permission = Platform.isAndroid
-        ? Permission.manageExternalStorage
-        : Permission.photos;
+    final picker = ImagePicker();
+    try {
+      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-    if (await permission.isDenied || await permission.isRestricted) {
-      final status = await permission.request();
-      if (!status.isGranted) {
-        _showSettingsDialog();
-        return;
+      if (pickedImage != null) {
+        setState(() {
+          _profileImage = File(pickedImage.path);
+        });
       }
+    } catch (e) {
+      _showSnackBar("Error selecting image: $e");
     }
-
-    if (await permission.isGranted) {
-      final picker = ImagePicker();
-      try {
-        final pickedImage = await picker.pickImage(source: ImageSource.gallery);
-
-        if (pickedImage != null) {
-          setState(() {
-            _profileImage = File(pickedImage.path);
-          });
-        }
-      } catch (e) {
-        _showSnackBar("Error selecting image: $e");
-      }
-    } else {
-      _showSnackBar("Gallery access denied.");
-    }
-  }
-
-  /// Show dialog directing user to app settings if permission is denied
-  void _showSettingsDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text("Permissions Required"),
-        content: const Text(
-          "Gallery access is required to upload a profile picture. Please enable permissions in settings.",
-        ),
-        actions: [
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-            },
-            child: const Text("Cancel"),
-          ),
-          TextButton(
-            onPressed: () {
-              Navigator.pop(context);
-              openAppSettings();
-            },
-            child: const Text("Open Settings"),
-          ),
-        ],
-      ),
-    );
   }
 
   /// Show a Snackbar with a given message
@@ -162,7 +118,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBarDefault(
-        title: ("Profile"),
+        title: tr("profile"),
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -189,7 +145,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     bottom: 0,
                     right: 0,
                     child: InkWell(
-                      onTap: _pickImage,
+                      onTap: _pickImage, // Image seçmek için tıklama
                       child: Container(
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
@@ -239,7 +195,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
               ElevatedButton.icon(
                 onPressed: _showLogoutDialog,
                 icon: const Icon(Icons.logout, color: Colors.white),
-                label: const Text("Logout"),
+                label: const Text("Çıkış yap"),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.red,
                   padding:

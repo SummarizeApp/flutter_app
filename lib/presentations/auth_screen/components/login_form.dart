@@ -3,6 +3,7 @@ import 'package:easy_localization/easy_localization.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:literate_app/presentations/auth_screen/components/forget_password/confirm_forget_password.dart';
 import 'package:literate_app/presentations/auth_screen/components/utils/input_custom_widget.dart';
 import 'package:literate_app/services/auth_service/login_service.dart';
 
@@ -67,22 +68,42 @@ if (accessToken != null) {
         const SizedBox(height: 10),
         
         // Şifremi unuttum linki
-        Align(
-          alignment: Alignment.centerLeft,
-          child: TextButton(
-            onPressed: () {
-              // Şifremi unuttum işlemi
-              print('Şifremi unuttum tıklandı');
-            },
-            child: Text(
-              "Şifremi Unuttum",
-              style: TextStyle(
-                color: Colors.white,  // Beyaz renk
-                fontSize: 14,
-              ),
-            ),
-          ),
+       Align(
+  alignment: Alignment.centerLeft,
+  child: TextButton(
+    onPressed: () {
+      showModalBottomSheet(
+        context: context,
+        isScrollControlled: true, // Klavye açıldığında içeriği yukarı kaydırır
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
         ),
+        builder: (BuildContext context) {
+          return Padding(
+            padding: EdgeInsets.only(
+              bottom: MediaQuery.of(context).viewInsets.bottom, // Klavye yüksekliğine göre boşluk
+            ),
+            child: CustomConfirmMail(
+              onConfirm: () {
+                // Onaylama işlemi
+                print('Onayla butonuna tıklandı');
+                Navigator.pop(context); // Dialogu kapat
+              },
+            ),
+          );
+        },
+      );
+    },
+    child: Text(
+      "Şifremi Unuttum",
+      style: TextStyle(
+        color: Colors.white, // Beyaz renk
+        fontSize: 14,
+      ),
+    ),
+  ),
+),
+
         
         ElevatedButton(
           onPressed: () {

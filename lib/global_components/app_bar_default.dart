@@ -16,16 +16,6 @@ class AppBarDefault extends StatelessWidget implements PreferredSizeWidget {
     return AppBar(
     backgroundColor: Theme.of(context).colorScheme.primary, // MediumAquaMarine Koyu yeşil tonları
       elevation: 0, // Gölgeyi kaldırdık
-      leading: IconButton(
-        icon: const Icon(
-          Icons.arrow_back, // Geri gel ikonu
-          color: Colors.white, // İkonun rengi beyaz
-        ),
-        onPressed: () {
-          // Geri gitme işlevi, örneğin:
-          Navigator.pop(context);
-        },
-      ),
       title: Text(
         title,
         style: const TextStyle(
@@ -35,6 +25,7 @@ class AppBarDefault extends StatelessWidget implements PreferredSizeWidget {
           letterSpacing: 1.1, // Harfler arasındaki mesafe
         ),
       ),
+       centerTitle: true,
     );
   }
 }
