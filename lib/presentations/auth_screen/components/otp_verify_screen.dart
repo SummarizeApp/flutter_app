@@ -22,7 +22,7 @@ class _OtpVerificationScreenState extends State<OtpVerificationScreen> {
   final AuthServiceVerifyOtp authServiceVerifyOtp = AuthServiceVerifyOtp();
 
   late Timer _timer;
-  int _remainingTime = 500; // 5 dakika = 300 saniye
+  int _remainingTime = 600; 
   bool _isButtonDisabled = false;
 
   @override

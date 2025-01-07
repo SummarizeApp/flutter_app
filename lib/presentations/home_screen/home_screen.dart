@@ -20,80 +20,90 @@ class _HomeScreenState extends State<HomeScreen> {
   List<File> files = [];
   String? selectedFilePath;
   bool isLoading = false; // Yükleme durumunu takip etmek için
+  final TextEditingController titleController = TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   void handleFilePicked(List<File> pickedFiles) {
-  if (pickedFiles.isNotEmpty) {
-    final pickedFile = pickedFiles.last;
-    final mimeType = lookupMimeType(pickedFile.path); // Dosyanın mime türünü alıyoruz
-    final fileExtension = pickedFile.path.split('.').last.toLowerCase(); // Dosya uzantısını alıyoruz
+    if (pickedFiles.isNotEmpty) {
+      final pickedFile = pickedFiles.last;
+      final mimeType = lookupMimeType(pickedFile.path); // Dosyanın mime türünü alıyoruz
+      final fileExtension = pickedFile.path.split('.').last.toLowerCase(); // Dosya uzantısını alıyoruz
 
-    // Eğer dosyanın türü pdf ise
-    if (mimeType == 'application/pdf' || fileExtension == 'pdf') {
-      setState(() {
-        files.add(pickedFile);
-        selectedFilePath = pickedFile.path;
-      });
-    } else {
-      // Eğer dosya pdf değilse, hata mesajı gösteriyoruz
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Lütfen sadece PDF dosyaları yükleyin")),
-      );
+      // Eğer dosyanın türü pdf ise
+      if (mimeType == 'application/pdf' || fileExtension == 'pdf') {
+        setState(() {
+          files.add(pickedFile);
+          selectedFilePath = pickedFile.path;
+          titleController.text = pickedFile.path.split('/').last; // Dosya ismini başlık olarak ayarla
+        });
+      } else {
+        // Eğer dosya pdf değilse, hata mesajı gösteriyoruz
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text("Lütfen sadece PDF dosyaları yükleyin")),
+        );
+      }
     }
   }
-}
-
 
   void removeLastFile() {
     setState(() {
       if (files.isNotEmpty) {
         files.removeLast();
         selectedFilePath = null;
+        titleController.clear();
+        descriptionController.clear();
       }
     });
   }
 
   Future<void> summarizeFiles() async {
-  if (files.isEmpty) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Lütfen bir dosya seçin")),
-    );
-    return;
-  }
-
-  setState(() {
-    isLoading = true;
-  });
-
-  try {
-    for (var file in files) {
-      var response = await FileUploadService().uploadFile(
-        title: "Example Title", // Sabit başlık
-        description: "Example Description", // Sabit açıklama
-        file: file,
+    if (files.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Lütfen bir dosya seçin")),
       );
-
-      if (response.statusCode == 200) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Dosya başarıyla yüklendi!")),
-        );
-      } else {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text("Dosya yükleme başarısız: ${response.body}")),
-        );
-      }
-      print(response.body);
+      return;
     }
-  } catch (e) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Hata: $e")),
-    );
-  } finally {
-    setState(() {
-      isLoading = false;
-    });
-  }
-}
 
+    if (titleController.text.isEmpty || descriptionController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Başlık ve açıklama alanlarını doldurmanız gerekiyor")),
+      );
+      return;
+    }
+
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      for (var file in files) {
+        var response = await FileUploadService().uploadFile(
+          title: titleController.text, // Kullanıcının girdiği başlık
+          description: descriptionController.text, // Kullanıcının girdiği açıklama
+          file: file,
+        );
+
+        if (response.statusCode == 200) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Dosya başarıyla yüklendi!")),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text("Dosya yükleme başarısız: ${response.body}")),
+          );
+        }
+        print(response.body);
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Hata: $e")),
+      );
+    } finally {
+      setState(() {
+        isLoading = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -116,6 +126,8 @@ class _HomeScreenState extends State<HomeScreen> {
               if (selectedFilePath == null) _buildLottieAnimation(),
               if (files.isNotEmpty) _buildFileList(),
               const SizedBox(height: 20),
+             _buildTextFields(),
+             const SizedBox(height: 20),
               if (selectedFilePath != null)
                 PdfViewerWidget(
                   filePath: selectedFilePath!,
@@ -127,6 +139,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   files: files,
                   onPressed: summarizeFiles, // Özetleme işlemini başlat
                 ),
+                const SizedBox(height: 20),
               if (isLoading) const CircularProgressIndicator(), // Yükleme göstergesi
             ],
           ),
@@ -166,6 +179,28 @@ class _HomeScreenState extends State<HomeScreen> {
           onPressed: removeLastFile,
         ),
       ),
+    );
+  }
+
+  Widget _buildTextFields() {
+    return Column(
+      children: [
+        TextField(
+          controller: titleController,
+          decoration: InputDecoration(
+            labelText: "Başlık",
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 20),
+        TextField(
+          controller: descriptionController,
+          decoration: InputDecoration(
+            labelText: "Açıklama",
+            border: OutlineInputBorder(),
+          ),
+        ),
+      ],
     );
   }
 

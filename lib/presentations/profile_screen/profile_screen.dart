@@ -6,6 +6,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/services/profile_service/profile_service.dart';
 import 'package:literate_app/services/summary_service/summaryy_service.dart';
+import 'package:path_provider/path_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -26,6 +27,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   void initState() {
     super.initState();
     _fetchProfileData();
+    _loadSavedProfileImage();
   }
 
   /// Fetch profile data from the backend and update the state
@@ -92,26 +94,67 @@ class _ProfileScreenState extends State<ProfileScreen> {
   }
 
   /// Allow user to pick an image from the gallery
-  Future<void> _pickImage() async {
-    final picker = ImagePicker();
-    try {
-      final pickedImage = await picker.pickImage(source: ImageSource.gallery);
+ Future<void> _pickImage() async {
+  final picker = ImagePicker();
+  try {
+    final pickedImage = await picker.pickImage(source: ImageSource.gallery);
 
-      if (pickedImage != null) {
-        setState(() {
-          _profileImage = File(pickedImage.path);
-        });
-      }
-    } catch (e) {
-      _showSnackBar("Error selecting image: $e");
+    if (pickedImage != null) {
+      final directory = await getApplicationDocumentsDirectory();
+      final savedImagePath = '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.jpg';
+
+      // Resmi cihaz hafızasına kaydetme
+      final savedImage = await File(pickedImage.path).copy(savedImagePath);
+
+      setState(() {
+        _profileImage = savedImage; // Kaydedilen resmi kullan
+      });
+
+      _showSnackBar("Resim başarıyla kaydedildi");
+    }
+  } catch (e) {
+    _showSnackBar("Resim seçme hatası: $e");
+  }
+}
+
+  /// Fetch saved profile image path during initialization
+  Future<void> _loadSavedProfileImage() async {
+  final directory = await getApplicationDocumentsDirectory();
+  final files = directory.listSync(); // Dizin içindeki tüm dosyaları alır.
+
+  for (var file in files) {
+    if (file.path.endsWith('.jpg')) {
+      setState(() {
+        _profileImage = File(file.path); // Kaydedilen ilk resmi yükle
+      });
+      break;
     }
   }
+}
+
 
   /// Show a Snackbar with a given message
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
     );
+  }
+
+  /// Method to delete the profile image
+  Future<void> _deleteProfileImage() async {
+    try {
+      if (_profileImage != null) {
+        await _profileImage!.delete(); // Dosyayı sil
+        setState(() {
+          _profileImage = null; // Resmi sil
+        });
+        _showSnackBar('Resim başarıyla silindi.');
+      } else {
+        _showSnackBar('Silinecek resim bulunamadı.');
+      }
+    } catch (e) {
+      _showSnackBar('Resim silinirken hata oluştu: $e');
+    }
   }
 
   @override
@@ -144,20 +187,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   Positioned(
                     bottom: 0,
                     right: 0,
-                    child: InkWell(
-                      onTap: _pickImage, // Image seçmek için tıklama
-                      child: Container(
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: Colors.blue,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Silme Butonu
+                        if (_profileImage != null)
+                          InkWell(
+                            onTap: _deleteProfileImage,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.red,
+                              ),
+                              padding: const EdgeInsets.all(8.0),
+                              child: const Icon(
+                                Icons.delete,
+                                color: Colors.white,
+                                size: 20,
+                              ),
+                            ),
+                          ),
+                        const SizedBox(width: 45),
+                        // Kamera Butonu
+                        InkWell(
+                          onTap: _pickImage, // Image seçmek için tıklama
+                          child: Container(
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              color: Colors.blue,
+                            ),
+                            padding: const EdgeInsets.all(8.0),
+                            child: const Icon(
+                              Icons.camera_alt,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                          ),
                         ),
-                        padding: const EdgeInsets.all(8.0),
-                        child: const Icon(
-                          Icons.camera_alt,
-                          color: Colors.white,
-                          size: 20,
-                        ),
-                      ),
+                      ],
                     ),
                   ),
                 ],

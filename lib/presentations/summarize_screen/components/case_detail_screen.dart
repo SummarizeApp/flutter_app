@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_slidable/flutter_slidable.dart'; // flutter_slidable paketini içe aktar
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -30,7 +29,7 @@ class CaseDetailScreen extends StatelessWidget {
               _buildSectionContent(caseData['createdAt'].split('T')[0]),
               const SizedBox(height: 20),
 
-              // İçerik
+              // Özetlenen Hukuksal Metin
               _buildSectionHeader(context, "Özetlenen Hukuksal Metnin:"),
               Container(
                 decoration: BoxDecoration(
@@ -49,6 +48,36 @@ class CaseDetailScreen extends StatelessWidget {
               ),
               const SizedBox(height: 20),
 
+              // Özet Dosyası URL'si
+              if (caseData['summaryFileUrl'] != null)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    _buildSectionHeader(context, "Özet Dosyası"),
+                    GestureDetector(
+                      onTap: () async {
+                        final uri = Uri.parse(caseData['summaryFileUrl']);
+                        if (await canLaunchUrl(uri)) {
+                          await launchUrl(uri, mode: LaunchMode.externalApplication);
+                        } else {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(content: Text("Bağlantı açılamadı.")),
+                          );
+                        }
+                      },
+                      child: Text(
+                        "Dosyayı Görüntüle",
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Colors.blue,
+                          decoration: TextDecoration.underline,
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              const SizedBox(height: 20),
+
               // Dosyalar (Eğer varsa)
               if (caseData['files'] != null && caseData['files'].isNotEmpty)
                 Column(
@@ -60,85 +89,37 @@ class CaseDetailScreen extends StatelessWidget {
                         onTap: () async {
                           final uri = Uri.parse(file);
                           if (await canLaunchUrl(uri)) {
-                            await launchUrl(uri,
-                                mode: LaunchMode.externalApplication);
+                            await launchUrl(uri, mode: LaunchMode.externalApplication);
                           } else {
-                            // URL'nin logunu yazdır
-                            print("Açılamayan URL: $uri");
-
-                            // Kullanıcıya Snackbar ile bilgi ver
                             ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                  content: Text("Bağlantı açılamadı.")),
+                              const SnackBar(content: Text("Bağlantı açılamadı.")),
                             );
                           }
                         },
                         child: Padding(
                           padding: const EdgeInsets.symmetric(vertical: 5.0),
-                          child: Slidable(
-                            key: ValueKey(file),
-                            startActionPane: ActionPane(
-                              motion: const ScrollMotion(),
-                              dismissible: DismissiblePane(onDismissed: () {}),
-                              children: [
-                                SlidableAction(
-                                  onPressed: (context) {
-                                    // Silme işlemi burada yapılır
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('$file başlığı silindi.')),
-                                    );
-                                  },
-                                  backgroundColor: Color(0xFFFE4A49),
-                                  foregroundColor: Colors.white,
-                                  icon: Icons.delete,
-                                  label: 'Sil',
-                                ),
-                                SlidableAction(
-                                  onPressed: (context) {
-                                    // Paylaşma işlemi burada yapılır
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                          content: Text('$file başlığı paylaşıldı.')),
-                                    );
-                                  },
-                                  backgroundColor: Color(0xFF21B7CA),
-                                  foregroundColor: Colors.white,
-                                  icon: Icons.share,
-                                  label: 'Paylaş',
-                                ),
-                              ],
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.symmetric(vertical: 5.0),
-                              child: Row(
-                                children: [
-                                  const Icon(Icons.file_present, color: Colors.red),
-                                  const SizedBox(width: 8),
-                                  Expanded(
-                                    child: Text(
-                                      file,
-                                      style: const TextStyle(
-                                        fontSize: 14,
-                                        color: Colors.blue,
-                                        decoration: TextDecoration.underline,
-                                      ),
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.file_present, color: Colors.red),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  file,
+                                  style: const TextStyle(
+                                    fontSize: 14,
+                                    color: Colors.blue,
+                                    decoration: TextDecoration.underline,
                                   ),
-                                  IconButton(
-                                    icon: const Icon(Icons.download),
-                                    onPressed: () {},
-                                  ),
-                                ],
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
                       );
                     }).toList(),
                   ],
-                )
+                ),
             ],
           ),
         ),
@@ -147,46 +128,13 @@ class CaseDetailScreen extends StatelessWidget {
   }
 
   Widget _buildSectionHeader(BuildContext context, String title) {
-    return Slidable(
-      key: ValueKey(title),  // Her bölüm için benzersiz bir anahtar
-      startActionPane: ActionPane(
-        motion: const ScrollMotion(),
-        dismissible: DismissiblePane(onDismissed: () {}),
-        children: [
-          SlidableAction(
-            onPressed: (context) {
-              // Silme işlemi burada yapılır
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$title başlığı silindi.')),
-              );
-            },
-            backgroundColor: Color(0xFFFE4A49),
-            foregroundColor: Colors.white,
-            icon: Icons.delete,
-            label: 'Sil',
-          ),
-          SlidableAction(
-            onPressed: (context) {
-              // Paylaşma işlemi burada yapılır
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text('$title başlığı paylaşıldı.')),
-              );
-            },
-            backgroundColor: Color(0xFF21B7CA),
-            foregroundColor: Colors.white,
-            icon: Icons.share,
-            label: 'Paylaş',
-          ),
-        ],
-      ),
-      child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 8.0),
-        child: Text(
-          title,
-          style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                fontWeight: FontWeight.bold,
-              ),
-        ),
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Text(
+        title,
+        style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+              fontWeight: FontWeight.bold,
+            ),
       ),
     );
   }

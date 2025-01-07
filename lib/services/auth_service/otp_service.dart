@@ -50,4 +50,41 @@ class AuthServiceVerifyOtp {
       return null;
     }
   }
+
+  Future<bool> resendOtpRequest() async {
+    final url = Uri.parse('http://192.168.8.159:3000/api/auth/resend-otp');
+    final headers = {'Content-Type': 'application/json'};
+
+    // SharedPreferences'tan userId'yi al
+    final prefs = await SharedPreferences.getInstance();
+    final userId = prefs.getString('userId');
+
+    if (userId == null) {
+      print('User ID bulunamadı. OTP gönderimi başarısız.');
+      return false;
+    }
+
+    final body = jsonEncode({
+      'userId': userId,
+    });
+
+    try {
+      final response = await http.post(
+  url,
+  headers: headers,
+  body: body,
+).timeout(Duration(seconds: 120)); 
+
+      if (response.statusCode == 200) {
+        print('OTP yeniden gönderildi.');
+        return true;
+      } else {
+        print('Hata: ${response.statusCode}, Mesaj: ${response.body}');
+        return false;
+      }
+    } catch (e) {
+      print('Hata oluştu: $e');
+      return false;
+    }
+  }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
 import 'package:literate_app/global_components/app_bar_default.dart';
 import 'package:literate_app/presentations/summarize_screen/components/case_detail_screen.dart';
+import 'package:literate_app/services/summary_service/delete_summarize_service.dart';
 import 'package:literate_app/services/summary_service/summaryy_service.dart';
 
 class SummarizeScreen extends StatefulWidget {
@@ -28,45 +29,70 @@ class _SummarizeScreenState extends State<SummarizeScreen> {
   }
 
   void _deleteCase(int index) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: const Text("Silmek İstiyor musunuz?"),
-          content: const Text("Bu davayı silmek istediğinize emin misiniz?"),
-          actions: [
-            TextButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: const Text("İptal"),
-            ),
-            TextButton(
-              onPressed: () {
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return AlertDialog(
+        title: const Text("Silmek İstiyor musunuz?"),
+        content: const Text("Bu davayı silmek istediğinize emin misiniz?"),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.of(context).pop();
+            },
+            child: const Text("İptal"),
+          ),
+          TextButton(
+            onPressed: () async {
+              final deleteCaseService = DeleteCaseService();
+              try {
+                // Silinecek dava ID'sini liste olarak oluştur
+                final cases = await _cases;
+                final caseId = cases[index]['_id'] as String;
+                final caseIds = [caseId]; // caseIds için liste oluşturuyoruz
+
+                // Servis çağrısını yap
+                await deleteCaseService.deleteCase(caseIds);
+
+                // Başarılı olursa listeyi güncelle
                 setState(() {
                   _cases = _cases.then((cases) {
                     cases.removeAt(index);
                     return cases;
                   });
                 });
-                Navigator.of(context).pop();
+
+                // Kullanıcıya bilgi ver
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text("Dava başarıyla silindi."),
                     duration: Duration(seconds: 2),
                   ),
                 );
-              },
-              child: const Text(
-                "Sil",
-                style: TextStyle(color: Colors.red),
-              ),
+              } catch (e) {
+                // Hata durumunda kullanıcıya bilgi ver
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(
+                    content: Text("Silme işlemi başarısız: $e"),
+                    duration: const Duration(seconds: 2),
+                  ),
+                );
+              } finally {
+                Navigator.of(context).pop();
+              }
+            },
+            child: const Text(
+              "Sil",
+              style: TextStyle(color: Colors.red),
             ),
-          ],
-        );
-      },
-    );
-  }
+          ),
+        ],
+      );
+    },
+  );
+}
+
+
 
   @override
   Widget build(BuildContext context) {
